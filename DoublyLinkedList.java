@@ -1,4 +1,7 @@
-public class DoublyLinkedList {
+/**
+ * The DoublyLinkedList class is a doubly linked list that stores key-value pairs
+ */
+public class DoublyLinkedList extends DataType{
     public class Node {
         Node prev;
         Node next;
@@ -59,7 +62,10 @@ public class DoublyLinkedList {
         length++;
     }
 
-    public void addUnsorted(int key, String value) {
+    public void add(int key, String value) {
+        if (search(key) != null) {
+            return;
+        }
         Node node = new Node(key, value);
         if (head == null) {
             head = node;
@@ -137,6 +143,7 @@ public class DoublyLinkedList {
     }
 
     public int rangeKey(int key1, int key2) {
+        
         int num = 0;
         int flag = 0;
         Node current = head;
@@ -145,16 +152,24 @@ public class DoublyLinkedList {
                 flag = 1;
             }
             else if (flag == 1) {
-                num += 1;
                 if (key2 == current.key){
                     return num;
                 }
+                num++;
             }
             current = current.next;
         }
+        return (current == null) ? 0 : num;
+    }
 
-        return num;
-
+    public DoublyLinkedList allKeys() {
+        DoublyLinkedList list = new DoublyLinkedList();
+        Node current = head;
+        while (current != null) {
+            list.addSorted(current.key, current.value);
+            current = current.next;
+        }
+        return list;
     }
 
     public String toString() {
@@ -183,4 +198,11 @@ public class DoublyLinkedList {
         return str;
     }
 
+    public void printContents() {
+        System.out.println(this);
+    }
+
+    public int getLength() {
+        return length;
+    }
 }

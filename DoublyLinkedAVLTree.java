@@ -1,192 +1,310 @@
-// public class DoublyLinkedAVLTree extends DataType {
-//     class Node {
-//         Node left;
-//         Node right;
-//         Node parent;
+/**
+ * A node in the AVL tree is a key-value pair, where the key is an integer and the value is a string
+ */
+class Node {
+    int key, height;
+    Node left, right, next, prev;
+    String value;
 
-//         Node prev;
-//         Node next;
+    Node(int k, String v) {
+        key = k;
+        value = v;
+        height = 1;
+    }
+}
 
-//         int key;
-//         String value;
-//         int height;
+/**
+ * This class implements a doubly linked AVL tree with a root node, a recent node, and an oldest node
+ */
+class DoublyLinkedAVLTree extends DataType {
+    int length;
 
-//         Node(int key, String value) {
-//             this.key = key;
-//             this.value = value;
-//             this.height = 1;
-//         }
+    Node root;
+    Node recent;
+    Node oldest;
 
-//         Node(int key, String value, Node left, Node right, Node parent) {
-//             this.key = key;
-//             this.value = value;
-//             this.left = left;
-//             this.right = right;
-//             this.parent = parent;
-//             this.height = 1;
-//         }
-//     }
+    public DoublyLinkedAVLTree() {
+        root = null;
+        recent = null;
+        oldest = null;
+    }
 
-//     Node root;
-//     Node head;
-//     Node tail;
+    private int height(Node N) {
+        if (N == null)
+            return 0;
+        return N.height;
+    }
 
-//     public DoublyLinkedAVLTree() {
-//         root = null;
-//         head = null;
-//         tail = null;
-//     }
+    private int max(int a, int b) {
+        return (a > b) ? a : b;
+    }
 
-//     public void add(int key, String value) {
-//         if (root == null) {
-//             root = new Node(key, value);
-//             head = root;
-//             tail = root;
-//         } else {
-//             Node current = root;
-//             while (current != null) {
-//                 if (key < current.key) {
-//                     if (current.left == null) {
-//                         current.left = new Node(key, value, null, null, current);
-//                         current.left.prev = head;
-//                         head.next = current.left;
-//                         head = current.left;
+    private Node rightRotate(Node node1) {
+        Node leftNode = node1.left;
+        Node x = leftNode.right;
 
-//                         break;
-//                     } else {
-//                         current = current.left;
-//                     }
-//                 } else if (key > current.key) {
-//                     if (current.right == null) {
-//                         current.right = new Node(key, value, null, null, current);
-//                         current.right.prev = head;
-//                         head.next = current.right;
-//                         head = current.right;
-//                         break;
-//                     } else {
-//                         current = current.right;
-//                     }
-//                 } else {
-//                     break;
-//                 }
-//             }
-//         }
-//     }
+        leftNode.right = node1;
+        node1.left = x;
 
-//     private void updateHeight(Node node) {
-//         int leftHeight = height(node.left);
-//         int rightHeight = height(node.right);
-//         node.height = Math.max(leftHeight, rightHeight) + 1;
-//     }
+        node1.height = max(height(node1.left), height(node1.right)) + 1;
+        leftNode.height = max(height(leftNode.left), height(leftNode.right)) + 1;
+
+        return leftNode;
+    }
+
+    private Node leftRotate(Node node) {
+        Node rightNode = node.right;
+        Node x = rightNode.left;
+
+        rightNode.left = node;
+        node.right = x;
+
+        node.height = max(height(node.left), height(node.right)) + 1;
+        rightNode.height = max(height(rightNode.left), height(rightNode.right)) + 1;
+
+        return rightNode;
+    }
+
+    private int getBalance(Node N) {
+        if (N == null)
+            return 0;
+        return height(N.left) - height(N.right);
+    }
+
+    private Node insert(Node node, int key, String value) {
+        if (node == null) {
+            Node newNode = new Node(key, value);
+            if (recent == null) {
+                recent = newNode;
+                oldest = newNode;
+            } else {
+                recent.prev = newNode;
+                newNode.next = recent;
+                recent = newNode;
+            }
+
+            return newNode;
+        }
+
+        if (key < node.key)
+            node.left = insert(node.left, key, value);
+        else if (key > node.key)
+            node.right = insert(node.right, key, value);
+        else 
+            return node;
+
+        node.height = 1 + max(height(node.left),height(node.right));
+
+        int balance = getBalance(node);
+
+        if (balance > 1 && key < node.left.key)
+            return rightRotate(node);
+
+        if (balance < -1 && key > node.right.key)
+            return leftRotate(node);
+
+        if (balance > 1 && key > node.left.key) {
+            node.left = leftRotate(node.left);
+            return rightRotate(node);
+        }
+
+        if (balance < -1 && key < node.right.key) {
+            node.right = rightRotate(node.right);
+            return leftRotate(node);
+        }
+
+        return node;
+    }
+
     
-//     private int height(Node node) {
-//         return node != null ? node.height : -1;
-//     }
+    private Node findMostLeftNode(Node node) {
+        Node current = node;
 
-//     private int getBalance(Node node) {
-//         return (node == null) ? 0 : height(node.right) - height(node.left);
-//     }
+        while (current.left != null)
+        current = current.left;
+        
+        return current;
+    }
+    
+    private Node deleteNode(Node root, int key) {
+        if (root == null)
+        return root;
+        
+        if (key < root.key)
+        root.left = deleteNode(root.left, key);
+        else if (key > root.key)
+        root.right = deleteNode(root.right, key);
+        else {
+            if (root.prev != null) {
+                root.prev.next = root.next;
+            } else {
+                oldest = root.next;
+            }
+            if (root.next != null) {
+                root.next.prev = root.prev;
+            } else {
+                recent = root.prev;
+            }
+            if ((root.left == null) || (root.right == null)) {
+                Node temp = null;
+                if (temp == root.left)
+                temp = root.right;
+                else
+                temp = root.left;
+                
+                if (temp == null) {
+                    temp = root;
+                    root = null;
+                } else 
+                root = temp;
+            } else {
+                
+                Node temp = findMostLeftNode(root.right);
+                
+                root.key = temp.key;
+                root.value = temp.value;
+                root.next = temp.next;
+                root.prev = temp.prev;
+                root.prev.next = root;
+                root.next.prev = root;
+                
+                root.right = deleteNode(root.right, temp.key);
+            }
+        }
+        
+        if (root == null)
+        return root;
+        
+        root.height = max(height(root.left), height(root.right)) + 1;
+        
+        int balance = getBalance(root);
+        
+        
+        // Left Left Case
+        if (balance > 1 && getBalance(root.left) >= 0)
+        return rightRotate(root);
+        
+        // Left Right Case
+        if (balance > 1 && getBalance(root.left) < 0) {
+            root.left = leftRotate(root.left);
+            return rightRotate(root);
+        }
+        
+        // Right Right Case
+        if (balance < -1 && getBalance(root.right) <= 0)
+        return leftRotate(root);
 
-//     private Node rotateLeft(Node node) {
-//         Node right = node.right;
+        // Right Left Case
+        if (balance < -1 && getBalance(root.right) > 0) {
+            root.right = rightRotate(root.right);
+            return leftRotate(root);
+        }
+        
+        return root;
+    }
+    
+    private Node search(int key) {
+        Node current = root;
+        while (current != null) {
+            if (current.key == key) {
+                break;
+            }
+            current = current.key < key ? current.right : current.left;
+        }
+        return current;
+    }
 
-//         right.parent = node.parent;
-//         if (node == root) {
-//             root = right;
-//         } else {
-//             right.parent.left = right;
-//         }
-//         node.right = right.left;
-//         if (node.right != null) {
-//             node.right.parent = node;
-//         }
-//         right.left = node;
-//         node.parent = right;
-//         updateHeight(node);
-//         updateHeight(right);
-//         return right;
-//     }
+    public void add(int key, String value) {
+        if (search(key) != null) {
+            return;
+        }
+        root = insert(root, key, value);
+        length++;
+    }
 
-//     private Node rotateRight(Node node) {
-//         Node left = node.left;
+    public void remove(int key) {
+        root = deleteNode(root, key);
+        length--;
+    }
 
-//         left.parent = node.parent;
-//         if (node == root) {
-//             root = left;
-//         }
-//         else {
-//             left.parent.right = left;
-//         }
-//         node.left = left.right;
-//         if (node.left != null) {
-//             node.left.parent = node;
-//         }
-//         left.right = node;
-//         node.parent = left;
-//         updateHeight(node);
-//         updateHeight(left);
-//         return left;
-//     }
+    public String getValues(int key) {
+        Node node = search(key);
+        return node == null ? null : node.value;
+    }
 
-//     private Node restructure(Node node) {
-//         updateHeight(node);
-//         int balance = getBalance(node);
-//         if (balance > 1) {
-//             if (getBalance(node.right) < 0) {
-//                 node.right = rotateRight(node.right);
-//             }
-//             return rotateLeft(node);
-//         } else if (balance < -1) {
-//             if (getBalance(node.left) > 0) {
-//                 node.left = rotateLeft(node.left);
-//             }
-//             return rotateRight(node);
-//         }
-//         return node;
-//     }
+    public int nextKey(int key) {
+        Node node = search(key);
+        if (node == null) {
+            System.out.println(key + " doesn't exist");
+            return -1;
+        }
+        return node.next == null ? null : node.next.key;
+    }
 
-//     private Node add(Node node, int key, String value) {
-//         if (node == null) {
-//             return new Node(key, value);
-//         }
-//         if (key < node.key) {
-//             node.left = add(node.left, key, value);
-//             node.left.parent = node;
-//         } else if (key > node.key) {
-//             node.right = add(node.right, key, value);
-//             node.right.parent = node;
-//         } else {
-//             node.value = value;
-//         }
-//         return restructure(node);
-//     }
+    public int prevKey(int key) {
+        Node node = search(key);
+        if (node == null) {
+            System.out.println(key + " doesn't exist");
+            return -1;
+        }
+        return node.prev == null ? null : node.prev.key;
+    }
 
-//     private Node remove(Node node, int key) {
-//         if (node == null) {
-//             return node;
-//         } else if (node.key > key) {
-//             node.left = remove(node.left, key);
-//         } else if (node.key < key) {
-//             node.right = remove(node.right, key);
-//         } else {
-//             if (node.left == null || node.right == null) {
-//                 node = (node.left == null) ? node.right : node.left;
-//             } else {
-//                 Node nextKey = getMostLeftChild(node.right);
-//                 node.key = nextKey.key;
-//                 node.right = remove(node.right, node.key);
-//             }
-//         }
-//         if (node != null) {
-//             node = restructure(node);
-//         }
-//         return node;
-//     }
+    public int rangeKey(int key1, int key2) {
+        Node node = search(key1);
+        int count = 0;
+        while (node != null && node.key != key2) {
+            count++;
+            node = node.next;
+        }
+        return count;
+    }
 
-//     private Node getMostLeftChild(Node node) {
-//         while (node.left != null) {
-//             node = node.left;
-//         }
-//         return node;
-//     }
-// }
+    public DoublyLinkedList allKeys() {
+        DoublyLinkedList list = new DoublyLinkedList();
+        reverseInOrder(root, list);
+        return list;
+    }
+
+    private void reverseInOrder(Node node, DoublyLinkedList list) {
+        if (node != null) {
+            reverseInOrder(node.right, list);
+            list.addSorted(node.key, node.value);
+            reverseInOrder(node.left, list);
+        }
+    }
+
+    public String toString() {
+        String str = "";
+        Node current = recent;
+        if (length < 7) {
+            while (current != null) {
+                str += String.format("%08d", current.key) + "-" + current.value + " -> ";
+                current = current.next;
+            }
+        } else {
+            for (int i = 0; i < 3; i++) {
+                str += String.format("%08d", current.key) + "-" + current.value + " -> ";
+                current = current.next;
+            }
+            str += " ... " + (length - 6) + " Hidden Nodes ... -> ";
+            current = oldest;
+            for (int i = 0; i < 3; i++) {
+                current = current.prev;
+            }
+            for (int i = 0; i < 3; i++) {
+                str += String.format("%08d", current.key) + "-" + current.value + " -> ";
+                current = current.next;
+            }
+        }
+        return str;
+    }
+
+    public int getLength() {
+        return length;
+    }
+
+    public void printContents() {
+        System.out.println(this);
+    }
+}

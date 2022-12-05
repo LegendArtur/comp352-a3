@@ -16,7 +16,7 @@ public class ElasticERL {
         int number; 
         do {
             number = rand.nextInt(10000000, 100000000);
-        } while (numberAlreadyExists(number));
+        } while (numberAlreadyExists(number) || number < 10000000);
         return number;
     }
 
@@ -32,24 +32,28 @@ public class ElasticERL {
         erl.add(key, value);
     }
 
-    public void add(String value) {
-        erl.add(generate(), value);
+    public void remove(int key) {
+        erl.remove(key);
     }
 
-    public void remove(ElasticERL erl, String key) {
+    public String getValues(int key) {
+        return erl.getValues(key);
     }
 
-    public int[] getValues(ElasticERL erl, String key) {
-        return null;
+    public int nextKey(int key) {
+        return erl.nextKey(key);
     }
 
-    public void nextKey(ElasticERL erl, String key) {
+    public int prevKey(int key) {
+        return erl.prevKey(key);
     }
 
-    public void prevKey(ElasticERL erl, String key) {
+    public int rangeKey(int key1, int key2) {
+        return erl.rangeKey(key1, key2);
     }
 
-    public void rangeKey(String key1, String key2) {
+    public String toString() {
+        return erl.toString();
     }
 
 }

@@ -1,4 +1,4 @@
-public class DoubleDoublyLinkedList implements DataType{
+public class DoubleDoublyLinkedList extends DataType {
 
     DoublyLinkedList story;
     DoublyLinkedList sortedStory;
@@ -15,6 +15,7 @@ public class DoubleDoublyLinkedList implements DataType{
     public void add(int key, String value) {
         story.addUnsorted(key, value);
         sortedStory.addSorted(key, value);
+
     }
 
     public void remove(int key) {
@@ -36,5 +37,9 @@ public class DoubleDoublyLinkedList implements DataType{
 
     public int rangeKey(int key1, int key2) {
         return story.rangeKey(key1, key2);
+    }
+
+    public String toString() {
+        return story.toString();
     }
 }

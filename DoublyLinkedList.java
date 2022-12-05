@@ -4,6 +4,7 @@ public class DoublyLinkedList {
         Node next;
         int key;
         String value;
+
         Node(int key, String value) {
             this.key = key;
             this.value = value;
@@ -20,24 +21,29 @@ public class DoublyLinkedList {
     }
 
     public void addSorted(int key, String value) {
+        Node node = new Node(key, value);
         if (head == null) {
-            head = new Node(key, value);
+            head = node;
             tail = head;
         } else {
             Node current = head;
             while (current != null) {
                 if (key < current.key) {
                     if (current.prev == null) {
-                        current.prev = new Node(key, value);
+                        current.prev = node;
                         current.prev.next = current;
                         head = current.prev;
                         break;
                     } else {
-                        current = current.prev;
+                        node.prev = current.prev;
+                        node.next = current;
+                        node.prev.next = node;
+                        current.prev = node;
+                        break;
                     }
                 } else if (key > current.key) {
                     if (current.next == null) {
-                        current.next = new Node(key, value);
+                        current.next = node;
                         current.next.prev = current;
                         tail = current.next;
                         break;
@@ -57,9 +63,7 @@ public class DoublyLinkedList {
         Node node = new Node(key, value);
         if (head == null) {
             head = node;
-            //System.out.println("test1");
             tail = head;
-            //System.out.println("test2");
         } else {
             node.next = head;
             head.prev = node;
@@ -104,6 +108,7 @@ public class DoublyLinkedList {
             }
         }
         return null;
+
     }
 
     public String getValues(int key) {
@@ -132,29 +137,50 @@ public class DoublyLinkedList {
     }
 
     public int rangeKey(int key1, int key2) {
-        if (key1 > key2) {
-            return 0;
-        }
         int num = 0;
+        int flag = 0;
         Node current = head;
         while (current != null) {
-            if (key1 <= current.key && current.key <= key2) {
+            if (key1 == current.key) {
+                flag = 1;
+            }
+            else if (flag == 1) {
                 num += 1;
+                if (key2 == current.key){
+                    return num;
+                }
             }
             current = current.next;
         }
 
         return num;
+
     }
 
-    @Override
     public String toString() {
         String str = "";
         Node current = head;
-        while (current != null) {
-            str += current.key + " - " + current.value + "\n";
+        if (length < 7) {
+            while (current != null) {
+                str += String.format("%08d", current.key) + "-" + current.value + " -> ";
+                current = current.next;
+            }
+        } else {
+            for (int i = 0; i < 3; i++) {
+                str += String.format("%08d", current.key) + "-" + current.value + " -> ";
+                current = current.next;
+            }
+            str += " ... " + (length - 6) + " Hidden Nodes ... -> ";
+            current = tail;
+            for (int i = 0; i < 3; i++) {
+                current = current.prev;
+            }
+            for (int i = 0; i < 3; i++) {
+                str += String.format("%08d", current.key) + "-" + current.value + " -> ";
+                current = current.next;
+            }
         }
         return str;
     }
-    
+
 }

@@ -1,3 +1,3 @@
-// public class GoodArray extends DataType{
-//     int[] keys;
-// }
+public class GoodArray extends DataType{
+    
+}

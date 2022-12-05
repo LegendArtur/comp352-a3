@@ -1,16 +1,16 @@
-public interface DataType {
+public abstract class DataType {
 
-    public DoublyLinkedList allKeys();
+    public abstract DoublyLinkedList allKeys();
 
-    public void add(int ein, String value);
+    public abstract void add(int ein, String value);
 
-    public void remove(int ein);
+    public abstract void remove(int ein);
 
-    public String getValues(int ein);
+    public abstract String getValues(int ein);
 
-    public int nextKey(int ein);
+    public abstract int nextKey(int ein);
 
-    public int prevKey(int ein);
+    public abstract int prevKey(int ein);
 
-    public int rangeKey(int ein1, int ein2);
+    public abstract int rangeKey(int ein1, int ein2);
 }
